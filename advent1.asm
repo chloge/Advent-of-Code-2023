@@ -12,7 +12,7 @@
 ;Consider your entire calibration document. What is the sum of all of the calibration values?
 
 section .data
-    infile  db '/home/chloge/Desktop/advent_in1.txt', 0 ; Path to calibration values
+    infile  db '/home/chloge/Desktop/advent_in1.txt', 0 ; path to calibration values
     bufsize equ 21182
     buf times bufsize db 0
 
@@ -21,24 +21,24 @@ section .text
 
 _start:
     _read:
-    ; Syscall to open infile
+    ; syscall to open infile
     mov rax, 2 
     lea rdi, infile
     ;xor rsi, rsi (unneccesary because rsi starts at 0)
     syscall
 
-    ; Syscall to read from infile, 
-    mov rdi, rax ; File descriptor from open
-    xor rax, rax ; Set to 0 for read syscall
-    lea rsi, buf ; Buffer addr
-    mov rdx, bufsize ; Size of buffer addr
+    ; syscall to read from infile, 
+    mov rdi, rax
+    xor rax, rax
+    lea rsi, buf ; buffer addr
+    mov rdx, bufsize ; size of buffer
     syscall 
     
     ; At this point, rsi contains a ptr to the address of the file data
     ; It can be read in intervals of 4 for use
 
-    ; Adds the first and last digit between each the newline
-    mov r10, 21172 ; Length of file in bytes + 1
+    ; adds the first and last digit between each the newline
+    mov r10, 21172 ; length of file in bytes + 1
     mov rdi, rsi
     dec rdi
     xor rax, rax
@@ -63,7 +63,7 @@ _start:
         add rax, rcx
 
         _handling:
-        xor rdx, rdx ; Reset rdx, rbp, and r8 ; resets all the old numbers
+        xor rdx, rdx ; reset rdx, rbp, and r8
         xor r8, r8
         xor r9, r9
         jmp _validatebyte
@@ -74,12 +74,12 @@ _start:
         _validatebyte:
         dec r10
         inc rdi
-        test r10, r10 ; Jump to print if out of bytes to read
+        test r10, r10 ; jump to print if out of bytes to read
         jz _inttostr
         mov bl, [rdi]
-        cmp bl, 0xa ; Test if newline, if so jump to newline
+        cmp bl, 0xa ; test if newline, if so jump to newline
         je _newline
-        cmp bl, 47 ; Test if digit, if not jump to start
+        cmp bl, 47 ; test if digit, if not jump to start
         jg _greater
             _greater:
                 cmp bl, 58 ; ^
@@ -102,14 +102,15 @@ _start:
             jmp _validatebyte 
 
         
-    ; takes in rax as the number to convert  
+    
     _inttostr:
+        ; takes in rax as the number to convert
         add rsi, 21182 
         mov rcx, 10
         _loop:
             cmp rax, 10
             jl _inttstrend ; checks if only a single digit is left
-            xor dx, dx
+            xor dx, dx ; ensures dx is empty for remainder
             div rbx
             add rdx, 48 ; ascii int conversion magic
             mov [rsi], rdx
@@ -125,15 +126,16 @@ _start:
             mov rax, rsi
             jmp _print
 
-    ; syscall to print
+    
     _print:
-        mov rsi, rax
+        ; syscall to print
+        mov rsi, rax 
         mov rax, 1
         mov rdi, 1
         mov rdx, r8
         syscall
 
     _exit:
-    mov rax, 60
+    mov rax, 60 ; syscall to exit
     xor rdi, rdi
     syscall
