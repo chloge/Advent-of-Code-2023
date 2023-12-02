@@ -75,7 +75,7 @@ _start:
         dec r10
         inc rdi
         test r10, r10 ; Jump to print if out of bytes to read
-        jz _exit
+        jz _inttostr
         mov bl, [rdi]
         cmp bl, 0xa ; Test if newline, if so jump to newline
         je _newline
@@ -100,12 +100,40 @@ _start:
             test r8, r8
             jz _first ; jump to first if there isn't one
             mov r9, rbx
-            jmp _validatebyte        
+            jmp _validatebyte 
 
+        
+    ; takes in rax as the number to convert  
+    _inttostr:
+        add rsi, 21182 
+        mov rcx, 10
+        _loop:
+            cmp rax, 10
+            jl _inttstrend
+            xor dx, dx
+            div rbx
+            add rdx, 48 ; ascii int conversion magic
+            mov [rsi], rdx
+            inc r8
+            inc rsi
+            jmp _loop
+        _inttstrend:
+            add rax, 48
+            mov [rsi], rax
+            inc rsi
+            inc r8
+            sub rsi, r8
+            mov rax, rsi
+            jmp _print
+
+    _print:
+        mov rsi, rax
+        mov rax, 1
+        mov rdi, 1
+        mov rdx, r8
+        syscall
 
     _exit:
     mov rax, 60
     xor rdi, rdi
     syscall
-
-
