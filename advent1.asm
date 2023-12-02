@@ -21,27 +21,27 @@ section .text
 
 _start:
     _read:
-    ; syscall to open infile
-    mov rax, 2 
-    lea rdi, infile
-    ;xor rsi, rsi (unneccesary because rsi starts at 0)
-    syscall
+        ; syscall to open infile
+        mov rax, 2 
+        lea rdi, infile
+        ;xor rsi, rsi (unneccesary because rsi starts at 0)
+        syscall
 
-    ; syscall to read from infile, 
-    mov rdi, rax
-    xor rax, rax
-    lea rsi, buf ; buffer addr
-    mov rdx, bufsize ; size of buffer
-    syscall 
+        ; syscall to read from infile, 
+        mov rdi, rax
+        xor rax, rax
+        lea rsi, buf ; buffer addr
+        mov rdx, bufsize ; size of buffer
+        syscall 
     
-    ; At this point, rsi contains a ptr to the address of the file data
-    ; It can be read in intervals of 4 for use
-
-    ; adds the first and last digit between each the newline
-    mov r10, 21172 ; length of file in bytes + 1
-    mov rdi, rsi
-    dec rdi
-    xor rax, rax
+        ; At this point, rsi contains a ptr to the address of the file data
+        ; It can be read in intervals of 4 for use
+    
+        ; adds the first and last digit between each the newline
+        mov r10, 21172 ; length of file in bytes + 1
+        mov rdi, rsi
+        dec rdi
+        xor rax, rax
     _newline:
         cmp r10, 21172 ; skip addition on first iteration
         je _handling
@@ -54,52 +54,52 @@ _start:
         jmp _endskip ; handling in case there is only one number in the str
 
         _skip8:
-        movzx rcx, r8b ; int concat
-        imul rcx, 10     
-        movzx rdx, r8b
-        add rcx, rdx
+            movzx rcx, r8b ; int concat
+            imul rcx, 10     
+            movzx rdx, r8b
+            add rcx, rdx
 
         _endskip:
-        add rax, rcx
+            add rax, rcx
 
         _handling:
-        xor rdx, rdx ; reset rdx, rbp, and r8
-        xor r8, r8
-        xor r9, r9
-        jmp _validatebyte
+            xor rdx, rdx ; reset rdx, rbp, and r8
+            xor r8, r8
+            xor r9, r9
+            jmp _validatebyte
 
         _first: ; Handler for first digit
             mov r8, rbx
 
         _validatebyte:
-        dec r10
-        inc rdi
-        test r10, r10 ; jump to print if out of bytes to read
-        jz _inttostr
-        mov bl, [rdi]
-        cmp bl, 0xa ; test if newline, if so jump to newline
-        je _newline
-        cmp bl, 47 ; test if digit, if not jump to start
-        jg _greater
-            _greater:
-                cmp bl, 58 ; ^
-                jl _parse
-        jmp _validatebyte
-
-        ; bl contains a valid byte
-        ; rcx contains the current byte in the file
-        ; rdi contains the ptr to the full string we're working with
-
-        ; r8 will contain first digit
-        ; r9 will contain current digit
-        ; rax will contain sum
-
-        _parse:
-            sub rbx, 48
-            test r8, r8
-            jz _first ; jump to first if there isn't one
-            mov r9, rbx
-            jmp _validatebyte 
+            dec r10
+            inc rdi
+            test r10, r10 ; jump to print if out of bytes to read
+            jz _inttostr
+            mov bl, [rdi]
+            cmp bl, 0xa ; test if newline, if so jump to newline
+            je _newline
+            cmp bl, 47 ; test if digit, if not jump to start
+            jg _greater
+                _greater:
+                    cmp bl, 58 ; ^
+                    jl _parse
+            jmp _validatebyte
+    
+            ; bl contains a valid byte
+            ; rcx contains the current byte in the file
+            ; rdi contains the ptr to the full string we're working with
+    
+            ; r8 will contain first digit
+            ; r9 will contain current digit
+            ; rax will contain sum
+    
+            _parse:
+                sub rbx, 48
+                test r8, r8
+                jz _first ; jump to first if there isn't one
+                mov r9, rbx
+                jmp _validatebyte 
 
         
     
@@ -136,6 +136,6 @@ _start:
         syscall
 
     _exit:
-    mov rax, 60 ; syscall to exit
-    xor rdi, rdi
-    syscall
+        mov rax, 60 ; syscall to exit
+        xor rdi, rdi
+        syscall
