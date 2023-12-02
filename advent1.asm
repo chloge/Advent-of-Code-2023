@@ -51,7 +51,7 @@ _start:
         imul rcx, 10     
         movzx rdx, r9b
         add rcx, rdx
-        jmp _endskip
+        jmp _endskip ; handling in case there is only one number in the str
 
         _skip8:
         movzx rcx, r8b ; int concat
@@ -63,7 +63,7 @@ _start:
         add rax, rcx
 
         _handling:
-        xor rdx, rdx ; Reset rdx, rbp, and r8
+        xor rdx, rdx ; Reset rdx, rbp, and r8 ; resets all the old numbers
         xor r8, r8
         xor r9, r9
         jmp _validatebyte
@@ -86,7 +86,6 @@ _start:
                 jl _parse
         jmp _validatebyte
 
-        ; At this point:
         ; bl contains a valid byte
         ; rcx contains the current byte in the file
         ; rdi contains the ptr to the full string we're working with
@@ -109,23 +108,24 @@ _start:
         mov rcx, 10
         _loop:
             cmp rax, 10
-            jl _inttstrend
+            jl _inttstrend ; checks if only a single digit is left
             xor dx, dx
             div rbx
             add rdx, 48 ; ascii int conversion magic
             mov [rsi], rdx
-            inc r8
+            inc r8 ; r8 will be used as the str len
             inc rsi
             jmp _loop
         _inttstrend:
-            add rax, 48
+            add rax, 48 ; same deal as before, without the division
             mov [rsi], rax
             inc rsi
             inc r8
-            sub rsi, r8
+            sub rsi, r8 ; heads back to the beginning of the buffer
             mov rax, rsi
             jmp _print
 
+    ; syscall to print
     _print:
         mov rsi, rax
         mov rax, 1
